@@ -2,6 +2,7 @@ import express, { type Application } from "express";
 import http, { type Server } from "http";
 import cors from "cors";
 import cookies from "cookie-parser";
+import { connection } from "./database/config";
 
 class ServerApp {
     private app: Application;
@@ -28,6 +29,7 @@ class ServerApp {
     private async databaseConnection() {
         try {
             // TODO: Make connection to database
+            await connection();
         } catch (err) {
             ServerApp.handleInternalError(err)
         }
