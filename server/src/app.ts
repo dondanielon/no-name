@@ -1,38 +1,36 @@
-import express, { type Application } from "express";
-import http, { type Server } from "http";
-import cors from "cors";
-import cookies from "cookie-parser";
-import { connection } from "./database/config";
+import express, { type Application } from "express"
+import http, { type Server } from "http"
+import cors from "cors"
+import cookies from "cookie-parser"
+import { type Sequelize } from "sequelize"
+const { sequelize } = require("./database/config.js")
 
 class ServerApp {
-    private app: Application;
-    private server: Server;
-    private PORT: number;
+    private app: Application
+    private server: Server
+    private PORT: number
+    private sequelize: Sequelize
 
     constructor(port: number) {
-        this.app = express();
-        this.server = http.createServer(this.app);
-        this.PORT = port;
+        this.app = express()
+        this.server = http.createServer(this.app)
+        this.PORT = port
+        this.sequelize = sequelize
 
-        // connection to database
-        this.databaseConnection();
-        // basic middlewares
-        this.middlewares();
+        this.middlewares()
     }
 
     run() {
-        this.server.listen(this.PORT, () => {
-            console.log(`server running on port ${this.PORT}`)
-        })
-    }
-
-    private async databaseConnection() {
-        try {
-            // TODO: Make connection to database
-            await connection();
-        } catch (err) {
-            ServerApp.handleInternalError(err)
-        }
+        this.sequelize
+            .sync({ force: true })
+            .then(() => {
+                this.server.listen(this.PORT, () => {
+                    console.log(`server running on port ${this.PORT}`)
+                })
+            })
+            .catch((err: unknown) => {
+                ServerApp.handleInternalError(err)
+            })
     }
 
     private middlewares() {
@@ -47,4 +45,4 @@ class ServerApp {
     }
 }
 
-export default ServerApp;
+export default ServerApp
