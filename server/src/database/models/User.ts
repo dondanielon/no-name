@@ -1,47 +1,30 @@
-import {
-    Model,
-    InferAttributes,
-    InferCreationAttributes,
-    CreationOptional,
-    type Sequelize,
-} from "sequelize"
+import { Table, Column, Model, PrimaryKey, Unique, DataType, Default, HasOne, AllowNull } from "sequelize-typescript"
+import { Social } from "./Social"
+import { UserAttributes, UserCreationAttributes } from "../../types/models"
 
-module.exports = (sequelize: Sequelize, DataTypes: any) => {
-    class User extends Model<
-        InferAttributes<User>,
-        InferCreationAttributes<User>
-    > {
-        declare id: CreationOptional<string>
-        declare username: string
-        declare email: string
-        declare password: string
+@Table({
+    timestamps: true
+})
+export class User extends Model<UserAttributes, UserCreationAttributes> {
+    @PrimaryKey
+    @Default(DataType.UUIDV4)
+    @Column(DataType.UUID)
+    id?: string
 
-        static associate(models: any) {
-            User.belongsTo(models.Project)
-        }
-    }
+    @AllowNull(false)
+    @Unique
+    @Column(DataType.STRING)
+    username!: string
+    
+    @AllowNull(false)
+    @Unique
+    @Column(DataType.STRING)
+    email!: string
 
-    User.init(
-        {
-            id: {
-                type: DataTypes.UUID,
-                primaryKey: true,
-                defaultValue: DataTypes.UUIDV4,
-            },
-            username: {
-                type: DataTypes.STRING,
-                unique: true,
-            },
-            email: {
-                type: DataTypes.STRING,
-                unique: true,
-            },
-            password: { type: DataTypes.STRING },
-        },
-        {
-            sequelize,
-            timestamps: true,
-            paranoid: true,
-        }
-    )
+    @AllowNull(false)
+    @Column(DataType.STRING)
+    password!: string
+    
+    @HasOne(() => Social)
+    social!: Social
 }
